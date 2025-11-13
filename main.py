@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Session, select, SQLModel
 from typing import List, Optional
 
-# Meus imports
+# Meus imports (da pasta 'core')
 from database import create_db_and_tables, get_session, Link
 
 # Imports do bônus (pegar título)
@@ -49,19 +49,29 @@ def create_link(*, session: Session = Depends(get_session), link_data: LinkCreat
     # link_data: LinkCreate -> Pega o JSON do body e valida
     
     # --- Bônus: Pegar título ---
+    # Se o usuário não mandou um título...
     if not link_data.title:
         try: # try...except pq pode falhar (site 404, etc)
+            # httpx vai na URL e baixa o HTML
+            # follow_redirects=True (importante pra links encurtados)
             response = httpx.get(link_data.url, follow_redirects=True, timeout=5.0)
-            response.raise_for_status() # Para se der erro (404, 500)
-            soup = BeautifulSoup(response.text, 'html.parser') # bs4 "lê" o html
             
+            # Se a página der erro (404, 500), isso aqui vai parar o código
+            response.raise_for_status() 
+            
+            # BeautifulSoup (bs4) "lê" o texto HTML
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Tenta achar a tag <title>
             if soup.title and soup.title.string:
-                link_data.title = soup.title.string.strip() # Pega o texto do <title>
+                # Pega o texto de dentro da tag e .strip() pra tirar espaços
+                link_data.title = soup.title.string.strip() 
         
         except Exception as e:
-            # Se falhar, só ignora e segue. O link é salvo sem título.
+            # Se der qualquer erro, só printa no meu console e segue em frente.
+            # O link vai ser salvo sem título, sem problemas.
             print(f"Erro ao buscar título: {e}")
-            pass 
+            pass # Continua a execução
     # --- Fim do Bônus ---
 
     # Converte o 'LinkCreate' (entrada) pro 'Link' (banco)
