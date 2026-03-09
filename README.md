@@ -45,12 +45,6 @@ Quantas vezes você vê um link interessante (artigo, vídeo, produto) e o envia
 
 ---
 
-## 📸 API em Ação
-
-Aqui está a documentação interativa (Swagger UI) gerada automaticamente pelo FastAPI:
-
-
-*(DICA: Tire um print da sua tela do `/docs` mostrando todos os endpoints, suba no GitHub e coloque o link da imagem aqui)*
 
 ## 📚 Endpoints da API
 
